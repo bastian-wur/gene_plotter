@@ -1,4 +1,4 @@
-#gene_plotter
+# gene_plotter
 Gene plotter is a tool to plot/draw ranges of genes from one or multiple genbank files.
 It allows custom labels, colouring, and a range of other options, mostly dervied from the underlying matplotlib library.
 
@@ -11,11 +11,11 @@ python3 gene_plotter.py --input_file example/plot.csv --color_file example/colou
 
 This tool has been tested with a range of bacterial genomes, so probably not all bugs have been found yet. Feedback is welcome.
 
-##requirements
+## requirements
 This tool is written in Python3.
 It requires matplotlib
 
-##how to use
+## how to use
 Minimum use:
 python3 gene_plotter.py --input_file /home/plot1.csv
 OR 
@@ -24,7 +24,7 @@ python3 gene_plotter.py --input genbank1.gb gene_start gene_end forward -input g
 Longer example:
 python3 gene_plotter.py --input_file plot1.csv --color_file /home/colour_file.txt --file_extension svg --name_file /home/name_file.txt --font_size 42
 
-##options
+## options
 * --input genbank_file start_gene stop_gene reverse
                         Genbank file and start and stop gene and if it should
                         be plotted forward or reverse. Can be used multiple
@@ -89,25 +89,25 @@ python3 gene_plotter.py --input_file plot1.csv --color_file /home/colour_file.tx
                         Factor by which the arrow should be fattened. 1.5 means the arrow will be 50% thicker                      
 *  -v, --version                        
 
-##what does it not do
+## what does it not do
 This tool ONLY draws the genes into a plot.
 It does not show in any form homology between genes.
 While this could be interesting to add, it would add considerable overhead, so the chance of implementation is low.
 
-##current bugs
+## current bugs
 1. italics for organism names: There is a heuristic to determine what should and should not be in italics, but this will probably only catch a minority of cases. This might not be fixable. To fix wrong italics in Inkscape manually, select the character, then go object -> transform -> skew -> horizontal, and use as value 11
 1. complicated genbank files: to avoid dependencies, the parser for genbank files is simple and self made. It might break with more comlicated genbank entries.
 1. overlapping features with the same identifer: If there are features with the same identifier, which overlap (e.g. locus tag used for both CDS and for signal peptide), then this will lead to weird results.
 
-##features not implemented (yet)
-2. introns/exons: These will be read, but only the complete gene will be plotted. I hope to fix this in the future.
-2. vertical alignment: You might want to align the different plot parts to e.g. a gene in the middle. This is currently not implemented, since this probably complicates the logic of the plotting considerably. This feature will probably not be implemented.
-2. proper error handling: Most errors in input files will not be caught right now
+## features not implemented (yet)
+1. introns/exons: These will be read, but only the complete gene will be plotted. I hope to fix this in the future.
+1. vertical alignment: You might want to align the different plot parts to e.g. a gene in the middle. This is currently not implemented, since this probably complicates the logic of the plotting considerably. This feature will probably not be implemented.
+1. proper error handling: Most errors in input files will not be caught right now
 
-##citation
+## citation
 Please cite this github repository if you use gene_plotter to produce any figures in your paper.
 A publication in maybe the journal of open source software JOSS is planned for the future.
 
-##license
+## license
 This software is distributed under the GPLv3.
 
