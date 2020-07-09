@@ -1,0 +1,3 @@
+example/Clostridium_difficile_630.gb	tcdR	tcdC	forward
+example/Clostridioides_difficile_M120.gb	tcdR	CDM120_RS04010	forward
+example/Clostridioides_difficile_strain_ZJCDC-S82.gb	TZ54_05565	TZ54_05655	reverse

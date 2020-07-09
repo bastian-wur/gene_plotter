@@ -1,0 +1,13 @@
+#lines starting with # will be ignored
+tcdA;red
+tcdB;#4c0000
+tcdR;green
+tcdE;yellow
+tcdC;blue
+CDM120_RS04010;blue
+TZ54_05655;green
+TZ54_05650;#4c0000
+TZ54_05575;red
+TZ54_05565;blue
+TZ54_05645;yellow
+

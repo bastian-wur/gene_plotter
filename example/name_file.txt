@@ -1,0 +1,11 @@
+#lines starting with # will be ignored
+CDM120_RS04010;$\it{tcdC}$
+CD630_06620;_
+CDM120_RS19035;_
+CDM120_RS04000;_
+TZ54_05655;$\it{tcdR}$
+TZ54_05650;$\it{tcdB}$
+TZ54_05575;$\it{tcdA}$
+TZ54_05565;$\it{tcdC}$ (partial)
+TZ54_05645;$\it{tcdE}$ (partial)
+

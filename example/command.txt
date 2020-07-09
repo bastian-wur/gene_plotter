@@ -1,0 +1,1 @@
+python3 gene_plotter.py --input_file example/plot.csv --color_file example/colour_file.txt --file_extension png --name_file example/name_file.txt --font_size 36 --label_rotation 25 --label_offset -0.01 --arrow_thickness 2 
