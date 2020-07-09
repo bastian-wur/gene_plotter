@@ -98,6 +98,8 @@ While this could be interesting to add, it would add considerable overhead, so t
 1. italics for organism names: There is a heuristic to determine what should and should not be in italics, but this will probably only catch a minority of cases. This might not be fixable. To fix wrong italics in Inkscape manually, select the character, then go object -> transform -> skew -> horizontal, and use as value 11
 1. complicated genbank files: to avoid dependencies, the parser for genbank files is simple and self made. It might break with more comlicated genbank entries.
 1. overlapping features with the same identifer: If there are features with the same identifier, which overlap (e.g. locus tag used for both CDS and for signal peptide), then this will lead to weird results.
+<br/>
+Please still report bugs, in case you encounter them from genbank files downloaded from a widespread source, or if some obvious check for strain identifiers is missing. 
 
 ## Features not implemented (yet)
 1. introns/exons: These will be read, but only the complete gene will be plotted. I hope to fix this in the future.
