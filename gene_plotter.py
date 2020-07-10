@@ -84,6 +84,9 @@ def sanitize_organism_name(sName):
     for item in lName:
         if item in lEnd:
             bEnd = True
+        #logic: Items in the lNot list are not italics. Items after str., DSM or ATCC are not italics, including these items
+        #items which contain a number are not italics. Because no name has numbes in them, right?
+        #items which are only uppercase are not in italics either, because that has to be a strain identifier
         if bEnd or item in lNot or hasNumbers(item) or item==item.upper():
             sNameNew = sNameNew+" "+item            
         else:
