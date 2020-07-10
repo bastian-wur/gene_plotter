@@ -64,7 +64,7 @@ python3 gene_plotter.py --input_file plot1.csv --color_file /home/colour_file.tx
                         product to hex color. Tab, comma and semicolon are
                         valid separators. Partial lists can be given.
                         Otherwise default color coding will take place.
-                        Matplotlib defaul colors will be accepted (black, white, red, green, etc),
+                        Matplotlib defaul colors will be accepted (black, white, red, green, etc, see https://matplotlib.org/3.1.0/gallery/color/named_colors.html),
                         otherwise hex colours, #ADD8E6 or #FFFFFF.  Lines starting with # will be ignored.
 *  --name_file [NAME_FILE]<br/>
                         A csv file can be given with locus or gene or gene
