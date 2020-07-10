@@ -16,7 +16,7 @@ import matplotlib.patches as mpatches
 import argparse
 import os.path
 
-VERSION = "0.8"
+VERSION = "0.9"
 
 class entry:
     def __init__(self,sType,sStart,sStop,bComp=False):
@@ -84,7 +84,7 @@ def sanitize_organism_name(sName):
     for item in lName:
         if item in lEnd:
             bEnd = True
-        if bEnd or item in lNot or hasNumbers(item):
+        if bEnd or item in lNot or hasNumbers(item) or item==item.upper():
             sNameNew = sNameNew+" "+item            
         else:
             sNameNew = sNameNew+" "+'$\it{'+item+'}$'
