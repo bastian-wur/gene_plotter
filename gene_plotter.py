@@ -358,6 +358,14 @@ def read_input_file(sFile):
         lRev.append(lData[3].strip())
     return lIn,lStartGene,lStopGene,lRev
 
+def write_args(args,sFile):
+    lParts = os.path.split(sFile)
+    sOut = os.path.join(lParts[0],"last_input_parameters.txt")
+    outputFile = open(sOut,"w")
+    dicItem = vars(args)
+    for key,value in dicItem.items():
+        outputFile.write(key+"\t"+str(value)+"\n")
+    outputFile.close()
 
 def do_processing(args):
     '''starts the main processing
@@ -382,7 +390,8 @@ def do_processing(args):
             lStopGene.append(lists[2])
             lRev.append(lists[3])
     elif args.input_file:
-        lIn,lStartGene,lStopGene,lRev = read_input_file(args.input_file)    
+        lIn,lStartGene,lStopGene,lRev = read_input_file(args.input_file)
+    write_args(args,lIn[0])
 
 
     sEntryType = args.entry_type
@@ -469,6 +478,7 @@ if __name__ == "__main__":
     parser.add_argument('--deactivate_coordinates', help="Deactivate the display of genomic coordinates to the left and right of the first and last gene",action='store_false')
     parser.add_argument('-v','--version', action='store_true')
     args = parser.parse_args()
+    
     if args.version:
         print ("version: "+VERSION)
         exit(1)

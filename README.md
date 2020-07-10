@@ -91,7 +91,7 @@ python3 gene_plotter.py --input_file plot1.csv --color_file /home/colour_file.tx
 
 ## What does it not do
 This tool ONLY draws the genes into a plot.<br/>
-It does not show in any form homology between genes.<br/>
+It does not show in any form homology between genes, you need to know which genes belong to each other.<br/>
 While this could be interesting to add, it would add considerable overhead, so the chance of implementation is low.<br/>
 
 ## Current bugs
