@@ -62,6 +62,9 @@ def get_colour(newEntry,dicColor):
         return "#00FF00" # lime
     return "grey"
 
+def hasNumbers(inputString):
+    return any(char.isdigit() for char in inputString)
+
 def sanitize_organism_name(sName):
     ''' organism names should be in italics, but strain identifiers etc should be not
     This function is supposed to take care of a few obvious things, but will probably not
@@ -81,7 +84,7 @@ def sanitize_organism_name(sName):
     for item in lName:
         if item in lEnd:
             bEnd = True
-        if bEnd or item in lNot:
+        if bEnd or item in lNot or hasNumbers(item):
             sNameNew = sNameNew+" "+item            
         else:
             sNameNew = sNameNew+" "+'$\it{'+item+'}$'
