@@ -37,6 +37,7 @@ def get_colour(newEntry,dicColor):
     """"very simple colouring scheme. Can be manually overriden by a given file with hex colours
     No error handling for wrong colours in the file
     """
+    
     sAnno = newEntry.sProduct.lower()
     if newEntry.sLocus in dicColor:
         return dicColor.get(newEntry.sLocus)
@@ -113,7 +114,9 @@ def read_genbank(sFile,dicColor):
     Does not parse everything, only what is relevant.
     I did not want to use bio-python, because in this way I am independent,
     and this function is not that complicated to write.
+    Although it begins to get long now, but most things should be covered
     """
+    
     lEntry = []
     inputFile = open(sFile)
     cNewEntry = ""
@@ -198,6 +201,7 @@ def get_label(sLabel,item,dicNames):
     Otherwise the type of label can be specified, and the name will be composed. Default is locus+product
     Gene names will be in italics.
     '''
+    
     if item.sLocus in dicNames:
         return dicNames.get(item.sLocus)
     if item.sOldLocus in dicNames:
@@ -223,6 +227,10 @@ def get_label(sLabel,item,dicNames):
     return item.sLocus#+" "+item.sProduct
 
 def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGene,sStopGene,sOut,sExt,iStartCoord,iStopCoord,iDistOffset,iSizeText,dicNames,sOrgName,ax,bCoord,fThick):
+    '''plots each entry in the input file
+    I should consider splitting up this function, it is a bit long and complicated
+    '''
+    
     iStopCoordOrg = iStopCoord
     iStopCoord = iStartCoord+iScale
     plt.xlim(iStartCoord-200,iStopCoord+200)
@@ -287,7 +295,8 @@ def get_start_stop_coords(lEntry,sStartGene,sStopGene,sEntryType):
     #note: last check for not bStart/bStop is in case there are multiple features with the same identifier, with different start/stop coordinates.
     #in this case only the first one should be taken.
     #why this matters: signal peptide with locus tag same as the gene on the rev. complement led to an improper determination of the stop coordinate.
-    #this might still cause issues, I think
+    #this might still cause issues, I think, since we can't assume that the longest item is first in the genbank file.
+    #I could re-sort the list, based on start position and length...mmhhh....
     for item in lEntry:
         if (item.sLocus ==sStartGene or item.sGeneName==sStartGene or item.sProduct==sStartGene or item.sProtein==sStartGene or item.sOldLocus==sStartGene) and item.sType in sEntryType and not bStart:
             iStartCoord = item.iStart
@@ -306,6 +315,7 @@ def fill_dict(sFile):
     '''reads a random "csv" file, and parses the input
     into a dictionary. Used for reading the custom gene label and colour files
     '''
+    
     inputFile = open(sFile)
     curDic = dict()
     for lines in inputFile:
@@ -337,6 +347,7 @@ def read_input_file(sFile):
     ''' reads the file with the genbank files,
     start and stop genes and if it is reverse or not
     '''
+    
     lIn = []
     lStartGene = []
     lStopGene = []
@@ -365,6 +376,10 @@ def read_input_file(sFile):
     return lIn,lStartGene,lStopGene,lRev
 
 def write_args(args,sFile):
+    '''writes the args to a log file.
+    Just in case the user wants to re-produce a plot with similar parameters.
+    '''
+    
     lParts = os.path.split(sFile)
     sOut = os.path.join(lParts[0],"last_input_parameters.txt")
     outputFile = open(sOut,"w")
@@ -373,13 +388,7 @@ def write_args(args,sFile):
         outputFile.write(key+"\t"+str(value)+"\n")
     outputFile.close()
 
-def do_processing(args):
-    '''starts the main processing
-    Assigns the input variables, reads the input, sets the scale of the plot
-    calls the plotting and saves the file   
-    '''
-
-    print ("version: "+VERSION)
+def assign_parameters(args):
     #I could make these 4 lists into a class, but mmhh...
     #does not really feel necessary right now
     lIn = []
@@ -397,8 +406,6 @@ def do_processing(args):
             lRev.append(lists[3])
     elif args.input_file:
         lIn,lStartGene,lStopGene,lRev = read_input_file(args.input_file)
-    write_args(args,lIn[0])
-
 
     sEntryType = args.entry_type
     sLabel = args.label
@@ -415,13 +422,26 @@ def do_processing(args):
     fThick = args.arrow_thickness
     sOut,sExt = sanitize_output_name(sOut,lIn[0],sExt,lStartGene[0],lStopGene[0])
 
+    return lIn,lStartGene,lStopGene,lRev,sEntryType,sLabel,sLabelPos,sOut,sColorFile,sNameFile,iScale,iRotation,sOut,sExt,iDistOffset,iSizeText,bCoord,fThick
+
+def do_processing(args):
+    '''starts the main processing
+    Assigns the input variables, reads the input, sets the scale of the plot
+    calls the plotting and saves the file    
+    '''
+
+    print ("version: "+VERSION)
+    lIn,lStartGene,lStopGene,lRev,sEntryType,sLabel,sLabelPos,sOut,sColorFile,sNameFile,iScale,iRotation,sOut,sExt,iDistOffset,iSizeText,bCoord,fThick = assign_parameters(args)
+    write_args(args,lIn[0])
+
     dicColor = dict()
     dicNames = dict()
     if sColorFile:
         dicColor = fill_dict(sColorFile)
     if sNameFile:
         dicNames = fill_dict(sNameFile)
-    ###it's kinda inefficient to read all the genbanks here and furtherbelow
+
+    ###it's kinda inefficient to read all the genbanks here and further below
     ###but the logic is simply easier like this
     if not iScale:
         for i,sIn in enumerate(lIn):
