@@ -97,6 +97,8 @@ def sanitize_organism_name(sName):
     return sNameNew
 
 def process_location(sType,bComp,sLocation):
+    sLocation = sLocation.replace(">","")
+    sLocation = sLocation.replace("<","")    
     sLocation = sLocation.strip(")")
     if not ".." in sLocation:
         sLocation = sLocation+".."+sLocation #this is just to read in a SNP, which can be found as "variation" and a single location only
@@ -151,8 +153,6 @@ def read_genbank(sFile,dicColor):
                     sType = item
                     break
             sLocation = lData[-1]
-            sLocation = sLocation.replace(">","")
-            sLocation = sLocation.replace("<","")
             bComp = False
             if "order" in sLocation:
                 sLocation = sLocation.replace("order(","")
@@ -292,7 +292,7 @@ def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGen
             if item.lIntrons:                
                 for introns in item.lIntrons:                    
                     if introns[1]-introns[0]<=0:continue #can't draw introns of negative size
-                    rec = mpatches.Rectangle((introns[0],-0.020*fThick),width=introns[1]-introns[0],height=0.04*fThick,color="#A9A9A9")
+                    rec = mpatches.Rectangle((introns[0],-0.019*fThick),width=introns[1]-introns[0],height=0.038*fThick,color="#A9A9A9")
                     ax.add_patch(rec)
 
         if (item.sLocus ==sStopGene or item.sGeneName==sStopGene or item.sProduct==sStopGene or item.sProtein==sStopGene or item.sOldLocus==sStopGene)  and (item.sType in sEntryType or not sEntryType):
