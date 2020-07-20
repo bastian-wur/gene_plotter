@@ -30,7 +30,8 @@ class entry:
         self.sProtein = ""
         self.bCompl = bComp
         self.sColour = "grey"
-        self.exons = []
+        self.lExons = []
+        self.lIntrons = []
 
 
 def get_colour(newEntry,dicColor):
@@ -97,6 +98,8 @@ def sanitize_organism_name(sName):
 
 def process_location(sType,bComp,sLocation):
     sLocation = sLocation.strip(")")
+    if not ".." in sLocation:
+        sLocation = sLocation+".."+sLocation #this is just to read in a SNP, which can be found as "variation" and a single location only
     lCoord = sLocation.split("..")
     sStart = lCoord[0]
     sStop = lCoord[-1]
@@ -106,7 +109,10 @@ def process_location(sType,bComp,sLocation):
         lParts = sLocation.split(",")
         for parts in lParts:
             s1,s2 = parts.split("..")
-            cNewEntry.exons.append([s1,s2])
+            cNewEntry.lExons.append([int(s1),int(s2)])
+        for i,exons in enumerate(cNewEntry.lExons):
+            if i==len(cNewEntry.lExons)-1:break
+            cNewEntry.lIntrons.append([cNewEntry.lExons[i][1],cNewEntry.lExons[i+1][0]])
     return cNewEntry
 
 def read_genbank(sFile,dicColor):
@@ -116,7 +122,7 @@ def read_genbank(sFile,dicColor):
     and this function is not that complicated to write.
     Although it begins to get long now, but most things should be covered
     """
-    
+    print ("processing: ",sFile)
     lEntry = []
     inputFile = open(sFile)
     cNewEntry = ""
@@ -135,7 +141,7 @@ def read_genbank(sFile,dicColor):
             if cNewEntry:
                 cNewEntry.sColour = get_colour(cNewEntry,dicColor)
                 lEntry.append(cNewEntry)
-            if lines.count("..")==1 or lines.endswith(")"):
+            if lines.count("..")<=1 or lines.endswith(")"):
                 bSingleLine = True
             else:
                 bSingleLine = False
@@ -155,41 +161,42 @@ def read_genbank(sFile,dicColor):
                 if "complement" in sLocation:
                     sLocation = sLocation.replace("))",")")
                 else:
-                    sLocation = sLocation[:-1]
+                    if not sLocation.endswith(","):
+                        sLocation = sLocation[:-1]
             if "complement" in sLocation:
                 sLocation = sLocation.split("(")[1]
                 sLocation = sLocation.strip(")")
                 bComp = True
-            #print (sLocation)
             if bSingleLine:
-                cNewEntry = process_location(sType,bComp,sLocation)               
+                cNewEntry = process_location(sType,bComp,sLocation)
+            else:
+                continue
 
         if not bSingleLine:
-            if lines.startswith("/"):
+            if lines.strip().startswith("/"):
                 bSingleLine = True
                 cNewEntry = process_location(sType,bComp,sLocation)
             else:
                 sLocation = sLocation+lines.strip()
                 
-        if True:#else:
-            lines = lines.strip()
-            lines = lines.replace(chr(34),"")
-            #I am accutely aware that this could be smarter
-            if lines.startswith("/gene="):
-                sGene = lines.split("=")[1]
-                cNewEntry.sGeneName = sGene
-            if lines.startswith("/product="):
-                sProduct = lines.split("=")[1]
-                cNewEntry.sProduct = sProduct
-            if lines.startswith("/locus_tag="):
-                sLocus = lines.split("=")[1]
-                cNewEntry.sLocus = sLocus
-            if lines.startswith("/old_locus_tag="):
-                sOldLocus = lines.split("=")[1]
-                cNewEntry.sOldLocus = sOldLocus                
-            if lines.startswith("/protein_id="):
-                sProtein = lines.split("=")[1]
-                cNewEntry.sProtein = sProtein
+        lines = lines.strip()
+        lines = lines.replace(chr(34),"")
+        #I am accutely aware that this could be smarter
+        if lines.startswith("/gene="):
+            sGene = lines.split("=")[1]
+            cNewEntry.sGeneName = sGene
+        if lines.startswith("/product="):
+            sProduct = lines.split("=")[1]
+            cNewEntry.sProduct = sProduct
+        if lines.startswith("/locus_tag="):
+            sLocus = lines.split("=")[1]
+            cNewEntry.sLocus = sLocus
+        if lines.startswith("/old_locus_tag="):
+            sOldLocus = lines.split("=")[1]
+            cNewEntry.sOldLocus = sOldLocus                
+        if lines.startswith("/protein_id="):
+            sProtein = lines.split("=")[1]
+            cNewEntry.sProtein = sProtein
 
 
     cNewEntry.sColour = get_colour(cNewEntry,dicColor)
@@ -281,6 +288,13 @@ def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGen
             else:
                 custAlign="left"
             plt.annotate(sLabelOut,(iMiddle,iY),rotation=iRotation,fontsize=iSizeText,horizontalalignment=custAlign)
+
+            if item.lIntrons:                
+                for introns in item.lIntrons:                    
+                    if introns[1]-introns[0]<=0:continue #can't draw introns of negative size
+                    rec = mpatches.Rectangle((introns[0],-0.020*fThick),width=introns[1]-introns[0],height=0.04*fThick,color="#A9A9A9")
+                    ax.add_patch(rec)
+
         if (item.sLocus ==sStopGene or item.sGeneName==sStopGene or item.sProduct==sStopGene or item.sProtein==sStopGene or item.sOldLocus==sStopGene)  and (item.sType in sEntryType or not sEntryType):
             bPrint = False
             break
@@ -304,6 +318,10 @@ def get_start_stop_coords(lEntry,sStartGene,sStopGene,sEntryType):
         if (item.sLocus ==sStopGene or item.sGeneName==sStopGene or item.sProduct==sStopGene or item.sProtein==sStopGene or item.sOldLocus==sStopGene) and item.sType in sEntryType and not bStop:
             iStopCoord = item.iStop
             bStop = True
+        '''if item.sLocus=="CD630_26050":
+            print ("found it")
+            print (item.sLocus,sStopGene)
+            print (item.sType,bStop)  '''          
     if (not bStart) or (not bStop):
         print ("problem finding one of the genes",sStartGene,sStopGene)
         print ("exiting")
@@ -334,6 +352,12 @@ def do_reverse(lEntry,iStartCoord,iStopCoord):
     for item in lEntry:
         item.iStart = iStopCoord-item.iStart+iStartCoord
         item.iStop = iStopCoord-item.iStop+iStartCoord
+        if item.lIntrons:
+            for i,intron in enumerate(item.lIntrons):
+                #the logic for below is different than the logic for above, since here we don't care where start and stop is
+                #the coordinates just need to be adjusted for the reverse system, and don't actually need to be reversed
+                #there is a check for not plotting introns with negative length, so we want to have this incongruency
+                item.lIntrons[i]= [iStopCoord-intron[1]+iStartCoord,iStopCoord-intron[0]+iStartCoord]
     return lEntry,iStartCoord,iStopCoord
 
 def sanitize_output_name(sOut,sIn,sExt,sStartGene,sStopGene):
@@ -497,9 +521,9 @@ if __name__ == "__main__":
                     type=float,default=0,nargs='?')
     parser.add_argument('--label_location', help="Should the label be above or below the genes?",choices=['Up', 'Down'],
                         default="Up",nargs='?')
-    parser.add_argument('--label', help="What should be printed as label? gene_name will be in italics. This can be overriden with a csv file (no styling though)",choices=['gene_name','locus','product','locus+product','locus+gene_name','gene_name+product'],
+    parser.add_argument('--label', help="What should be printed as label? gene_name will be in italics. This can be overriden with a csv file",choices=['gene_name','locus','product','locus+product','locus+gene_name','gene_name+product'],
                         default="gene_name",nargs='?')
-    parser.add_argument("--arrow_thickness", help="Factor by which the arrow should be fattened. 1.5 means the arrow will be 50% thicker",
+    parser.add_argument("--arrow_thickness", help="Factor by which the arrow should be fattened. 1.5 means the arrow will be 50 percent thicker",
                     type=float,default=1,nargs='?')    
     parser.add_argument('--deactivate_coordinates', help="Deactivate the display of genomic coordinates to the left and right of the first and last gene",action='store_false')
     parser.add_argument('-v','--version', action='store_true')
