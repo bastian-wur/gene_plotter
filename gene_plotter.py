@@ -14,7 +14,7 @@ genes out of it.
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import argparse
-import os.path
+import os
 
 VERSION = "0.9"
 
@@ -81,7 +81,7 @@ def sanitize_organism_name(sName):
     lName = sName.split(" ")
     sNameNew = ""
     lNot = ["sp.","subsp."]
-    lEnd = ["str.","DSM","ATCC"]
+    lEnd = ["DSM","ATCC","str."]
     bEnd = False
     for item in lName:
         if item in lEnd:
@@ -106,7 +106,7 @@ def process_location(sType,bComp,sLocation):
     sStart = lCoord[0]
     sStop = lCoord[-1]
     cNewEntry = entry(sType,sStart,sStop,bComp)
-    #below adding spliced parts; display not yet implemented
+
     if len(lCoord)>2:
         lParts = sLocation.split(",")
         for parts in lParts:
@@ -134,6 +134,14 @@ def read_genbank(sFile,dicColor):
         lines = lines.strip("\n")
         if lines.startswith("                     /organism="):
             sName = sanitize_organism_name(lines)
+        if lines.startswith("                     /strain="):
+            sStrain = lines.strip().split("=")[1].strip(chr(34))
+            if not sStrain in sName:
+                sName = sName+" str. "+sStrain
+        if lines.startswith("                     /sub_strain="):
+            sSub = lines.strip().split("=")[1].strip(chr(34))
+            if not sSub in sName:
+                sName = sName+" substr. "+sSub                
         if lines.startswith("     gene            "):
             bRead = True
         if not bRead:continue
@@ -404,8 +412,7 @@ def write_args(args,sFile):
     Just in case the user wants to re-produce a plot with similar parameters.
     '''
     
-    lParts = os.path.split(sFile)
-    sOut = os.path.join(lParts[0],"last_input_parameters.txt")
+    sOut = sFile+".last_input_parameters.txt"
     outputFile = open(sOut,"w")
     dicItem = vars(args)
     for key,value in dicItem.items():
@@ -456,7 +463,7 @@ def do_processing(args):
 
     print ("version: "+VERSION)
     lIn,lStartGene,lStopGene,lRev,sEntryType,sLabel,sLabelPos,sOut,sColorFile,sNameFile,iScale,iRotation,sOut,sExt,iDistOffset,iSizeText,bCoord,fThick = assign_parameters(args)
-    write_args(args,lIn[0])
+    write_args(args,sOut)
 
     dicColor = dict()
     dicNames = dict()
