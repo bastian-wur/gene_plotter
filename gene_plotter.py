@@ -268,9 +268,9 @@ def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGen
     plt.ylim(-0.1,0.1)
     plt.axis('off')
     fThickFin = 0.3 * fThick
+
     #arrow_style="simple,head_length=0.1,head_width=0.3,tail_width=0.3"
     arrow_style="simple,head_length=0.1,head_width="+str(fThickFin)+",tail_width="+str(fThickFin)
-
     bPrint = False
     for item in lEntry:
         if (item.sLocus ==sStartGene or item.sGeneName==sStartGene or item.sProduct==sStartGene or item.sOldLocus==sStartGene or item.sProtein==sStartGene)  and (item.sType in sEntryType or not sEntryType):
@@ -285,6 +285,7 @@ def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGen
             arrow = mpatches.FancyArrowPatch((iStartPrint, 0), (iStopPrint, 0),mutation_scale=100,facecolor=item.sColour,arrowstyle=arrow_style)
             #arrow = mpatches.FancyArrowPatch((iStartPrint, 0), (iStartPrint+(iLen*9), 0),mutation_scale=100,facecolor=item.sColour,arrowstyle=arrow_style)
             ax.add_patch(arrow)
+            arrowcoords = arrow.get_patch_transform().transform(arrow.get_path().vertices[:-1])
             iLength = max(item.iStop,item.iStart)-min(item.iStop,item.iStart)
             iMiddle = min(item.iStart,item.iStop)+iLength/2
             iY = 0.02
@@ -295,12 +296,14 @@ def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGen
                 custAlign="center"
             else:
                 custAlign="left"
-            plt.annotate(sLabelOut,(iMiddle,iY),rotation=iRotation,fontsize=iSizeText,horizontalalignment=custAlign)
-            print (fThick,fThickFin,fig.get_size_inches()*fig.dpi)
+            plt.annotate(sLabelOut,(iMiddle,iY),rotation=iRotation,fontsize=iSizeText,horizontalalignment=custAlign)            
             if item.lIntrons:                
                 for introns in item.lIntrons:                    
                     if introns[1]-introns[0]<=0:continue #can't draw introns of negative size
-                    rec = mpatches.Rectangle((introns[0],-0.019*fThick),width=introns[1]-introns[0],height=0.038*fThick,color="#A9A9A9")
+                    #I do not know why the hell the Y coords + size do not scale, and why if I just plot it at the -Y of the arrow it does not match
+                    #I really just don't know, it should, right?
+                    #this right now works fine for up to 10 genomes, although not perfect. Good enough
+                    rec = mpatches.Rectangle((introns[0],-1.2*abs(arrowcoords[0][1])),width=introns[1]-introns[0],height=arrowcoords[0][1]*2.4,color="#A9A9A9")
                     ax.add_patch(rec)
 
         if (item.sLocus ==sStopGene or item.sGeneName==sStopGene or item.sProduct==sStopGene or item.sProtein==sStopGene or item.sOldLocus==sStopGene)  and (item.sType in sEntryType or not sEntryType):
@@ -344,6 +347,7 @@ def fill_dict(sFile):
     
     inputFile = open(sFile)
     curDic = dict()
+    sSep = ""
     for lines in inputFile:
         lines = lines.strip()
         if not lines:continue        
@@ -351,7 +355,11 @@ def fill_dict(sFile):
         #yeah, below, that's the best I can come up with, not the smartest
         if "," in lines:sSep=","
         if ";" in lines:sSep=";"
-        if "\t" in lines:sSep="\t"        
+        if "\t" in lines:sSep="\t"
+        if not sSep:
+            print ("could not determine delimiter, ignoring line: ",lines)
+            print ("valid delimiters are comma, semicolon and tab")
+            continue
         lData = lines.split(sSep,1)
         curDic.setdefault(lData[0],lData[1])
     return curDic
@@ -384,6 +392,7 @@ def read_input_file(sFile):
     lStartGene = []
     lStopGene = []
     lRev = []
+    sSep = ""
     inputFile = open(sFile)
     for lines in inputFile:
         lines = lines.strip()
@@ -393,6 +402,10 @@ def read_input_file(sFile):
         if "," in lines:sSep=","
         if ";" in lines:sSep=";"
         if "\t" in lines:sSep="\t"
+        if not sSep:
+            print ("could not determine delimiter, ignoring line: ",lines)
+            print ("valid delimiters are comma, semicolon and tab")
+            continue        
         lData  = lines.split(sSep)
         if len(lData)!=4:
             print (lines+" in "+sFile+" is missing an entry, please fix")
@@ -482,12 +495,12 @@ def do_processing(args):
             iStartCoord,iStopCoord = get_start_stop_coords(lEntry,sStartGene,sStopGene,sEntryType)            
             iDif = iStopCoord-iStartCoord
             if iDif >iScale:
-                iScale = iDif
-            #print (sIn,iStartCoord,iStopCoord,iDif)
+                iScale = iDif            
     print ("longest stretch of DNA is: ",iScale)
-    fFactor = 0.00320 #empirical, tested... well, guessed
+    fFactor = 0.00320 #empirical, tested... well, guessed, same as 2 lines below
     xLen = fFactor*iScale
-    fig = plt.figure(figsize=(xLen,(xLen/6)*len(lIn))) #as above, just guessed around
+    yLen = (xLen/6)*len(lIn)
+    fig = plt.figure(figsize=(xLen,yLen))
 
     for i,sIn in enumerate(lIn):
         sStartGene = lStartGene[i]
@@ -500,10 +513,10 @@ def do_processing(args):
         ax= plt.gca()
         make_plot(lEntry,lRev[i],iScale,sLabel,sLabelPos,iRotation,sEntryType, sStartGene,sStopGene,sOut,sExt,iStartCoord,iStopCoord,iDistOffset,iSizeText,dicNames,sOrgName,ax,bCoord,fThick)
     plt.subplots_adjust(wspace=0, hspace=0)
-    plt.savefig(sOut+sExt)
-    print (sOut+" plotted succesfully")
+    plt.savefig(sOut+sExt)    
     plt.cla()
     plt.close()
+    print (sOut+" plotted succesfully")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

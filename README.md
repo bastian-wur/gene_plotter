@@ -9,7 +9,7 @@ An example can be seen below:<br/>
 This plot was generated with the following command:<br/>
 python3 gene_plotter.py --input_file example/plot.csv --color_file example/colour_file.txt --file_extension png --name_file example/name_file.txt --font_size 36 --label_rotation 25 --label_offset -0.01 --arrow_thickness 2<br/>
 
-This tool has been tested with a range of bacterial genomes, so probably not all bugs have been found yet. Feedback is welcome.
+This tool has been tested with a range of bacterial genomes and a bit of yeast, so probably not all bugs have been found yet. Feedback is welcome.
 
 ## Requirements
 This tool is written in Python3.<br/>
@@ -95,16 +95,16 @@ It does not show in any form homology between genes, you need to know which gene
 While this could be interesting to add, it would add considerable overhead, so the chance of implementation is low.<br/>
 
 ## Current bugs
-1. italics for organism names: There is a heuristic to determine what should and should not be in italics, but this will probably only catch a minority of cases. This might not be fixable. To fix wrong italics in Inkscape manually, select the character, then go object -> transform -> skew -> horizontal, and use as value 11
+1. italics for organism names: There is a heuristic to determine what should and should not be in italics, and it should catch most cases, but it is not perfect. To fix wrong italics in Inkscape manually, select the character, then go object -> transform -> skew -> horizontal, and use as value 11
 1. complicated genbank files: to avoid dependencies, the parser for genbank files is simple and self made. It might break with more comlicated genbank entries.
 1. overlapping features with the same identifer: If there are features with the same identifier, which overlap (e.g. locus tag used for both CDS and for signal peptide), then this will lead to weird results.
+1. There is some weird scaling issue with the height of displayed introns. This does not become apparent for most cases, but sometimes there is a bit of an offset.
 <br/>
 Please still report bugs, in case you encounter them from genbank files downloaded from a widespread source, or if some obvious check for strain identifiers is missing. 
 
 ## Features not implemented (yet)
-1. introns/exons: These will be read, but only the complete gene will be plotted. I hope to fix this in the future.
 1. vertical alignment: You might want to align the different plot parts to e.g. a gene in the middle. This is currently not implemented, since this probably complicates the logic of the plotting considerably. This feature will probably not be implemented.
-1. proper error handling: Most errors in input files will not be caught right now
+1. proper error handling: Some errors in the input files will not be caught right now
 
 ## Citation
 Please cite this github repository if you use gene_plotter to produce any figures in your paper.<br/>
