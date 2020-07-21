@@ -296,7 +296,7 @@ def make_plot(lEntry,sRev,iScale,sLabel,sLabelPos,iRotation,sEntryType,sStartGen
             else:
                 custAlign="left"
             plt.annotate(sLabelOut,(iMiddle,iY),rotation=iRotation,fontsize=iSizeText,horizontalalignment=custAlign)
-
+            print (fThick,fThickFin,fig.get_size_inches()*fig.dpi)
             if item.lIntrons:                
                 for introns in item.lIntrons:                    
                     if introns[1]-introns[0]<=0:continue #can't draw introns of negative size
