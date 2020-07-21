@@ -15,8 +15,11 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import argparse
 import os
+import re
 
 VERSION = "0.9"
+
+_rgbstring = re.compile(r'#[a-fA-F0-9]{6}$') #regex hex colours; check later in the file
 
 class entry:
     def __init__(self,sType,sStart,sStop,bComp=False):
@@ -117,6 +120,13 @@ def process_location(sType,bComp,sLocation):
             cNewEntry.lIntrons.append([cNewEntry.lExons[i][1],cNewEntry.lExons[i+1][0]])
     return cNewEntry
 
+
+
+def isrgbcolor(value):
+    '''gladly stolen from: https://stackoverflow.com/questions/20275524/how-to-check-if-a-string-is-an-rgb-hex-string
+    '''
+    return bool(_rgbstring.match(value))
+
 def read_genbank(sFile,dicColor):
     """Basic function to read genbank files.
     Does not parse everything, only what is relevant.
@@ -151,6 +161,10 @@ def read_genbank(sFile,dicColor):
             if cNewEntry:
                 cNewEntry.sColour = get_colour(cNewEntry,dicColor)
                 lEntry.append(cNewEntry)
+                if cNewEntry.sColour.startswith("#"):
+                    if not isrgbcolor(cNewEntry.sColour):
+                        print (cNewEntry.sColour," is not a valid hex colour, falling back to grey")
+                        cNewEntry.sColour = "grey"
             if lines.count("..")<=1 or lines.endswith(")"):
                 bSingleLine = True
             else:
@@ -333,10 +347,14 @@ def get_start_stop_coords(lEntry,sStartGene,sStopGene,sEntryType):
             print ("found it")
             print (item.sLocus,sStopGene)
             print (item.sType,bStop)  '''          
-    if (not bStart) or (not bStop):
-        print ("problem finding one of the genes",sStartGene,sStopGene)
+    if (not bStart):
+        print ("problem finding ",sStartGene)
         print ("exiting")
-        exit(0)
+        exit(1)
+    elif (not bStart):
+        print ("problem finding ",sStopGene)
+        print ("exiting")
+        exit(1)        
     else:
         return (iStartCoord,iStopCoord)
 
@@ -381,6 +399,8 @@ def sanitize_output_name(sOut,sIn,sExt,sStartGene,sStopGene):
         sExt = "."+sExt
     if not sOut:
         sOut = sIn+"."+sStartGene+"_"+sStopGene
+    if sOut.endswith(sExt):
+        sOut = sOut.rsplit(".",1)[0]
     return sOut,sExt
 
 def read_input_file(sFile):
@@ -486,6 +506,8 @@ def do_processing(args):
 
     ###it's kinda inefficient to read all the genbanks here and further below
     ###but the logic is simply easier like this
+    ###does not seem to have a considerable impact on performance, but did not test it
+    ###with big eukaryotic genomes
     if not iScale:
         for i,sIn in enumerate(lIn):
             sStartGene = lStartGene[i]
@@ -496,7 +518,7 @@ def do_processing(args):
             if iDif >iScale:
                 iScale = iDif            
     print ("longest stretch of DNA is: ",iScale)
-    fFactor = 0.00320 #empirical, tested... well, guessed, same as 2 lines below
+    fFactor = 0.00320 #empirical, tested... well, guessed, same as 2 lines below. Just seems to scale fine 
     xLen = fFactor*iScale
     yLen = (xLen/6)*len(lIn)
     fig = plt.figure(figsize=(xLen,yLen))
@@ -556,7 +578,7 @@ if __name__ == "__main__":
     else:
         print ("you need to provide input file and start/stop genes either via --input or --input_file")
         parser.print_help()
-        exit(0)
+        exit(1)
 
     
 

@@ -13,7 +13,7 @@ This tool has been tested with a range of bacterial genomes and a bit of yeast, 
 
 ## Requirements
 This tool is written in Python3.<br/>
-It requires matplotlib.<br/>
+It requires matplotlib, https://matplotlib.org/ .<br/>
 
 ## How to use
 Minimum use:<br/>
@@ -99,12 +99,12 @@ While this could be interesting to add, it would add considerable overhead, so t
 1. complicated genbank files: to avoid dependencies, the parser for genbank files is simple and self made. It might break with more comlicated genbank entries.
 1. overlapping features with the same identifer: If there are features with the same identifier, which overlap (e.g. locus tag used for both CDS and for signal peptide), then this will lead to weird results.
 1. There is some weird scaling issue with the height of displayed introns. This does not become apparent for most cases, but sometimes there is a bit of an offset.
+1. Trying to include in a single range genes from 2 different contigs will produce nonsense
 <br/>
-Please still report bugs, in case you encounter them from genbank files downloaded from a widespread source, or if some obvious check for strain identifiers is missing. 
+Please report bugs, even if they are related to the mentioned ones.
 
 ## Features not implemented (yet)
 1. vertical alignment: You might want to align the different plot parts to e.g. a gene in the middle. This is currently not implemented, since this probably complicates the logic of the plotting considerably. This feature will probably not be implemented.
-1. proper error handling: Some errors in the input files will not be caught right now
 
 ## Citation
 Please cite this github repository if you use gene_plotter to produce any figures in your paper.<br/>
