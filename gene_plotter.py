@@ -474,7 +474,6 @@ def do_processing(args):
     calls the plotting and saves the file    
     '''
 
-    print ("version: "+VERSION)
     lIn,lStartGene,lStopGene,lRev,sEntryType,sLabel,sLabelPos,sOut,sColorFile,sNameFile,iScale,iRotation,sOut,sExt,iDistOffset,iSizeText,bCoord,fThick = assign_parameters(args)
     write_args(args,sOut)
 
@@ -548,10 +547,10 @@ if __name__ == "__main__":
     parser.add_argument('--deactivate_coordinates', help="Deactivate the display of genomic coordinates to the left and right of the first and last gene",action='store_false')
     parser.add_argument('-v','--version', action='store_true')
     args = parser.parse_args()
-    
+
+    print ("version: "+VERSION)#I always want to have the version printed; like this it saves a line    
     if args.version:
-        print ("version: "+VERSION)
-        exit(1)
+        exit()
     if args.input or args.input_file:
         do_processing(args)
     else:

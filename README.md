@@ -33,7 +33,7 @@ python3 gene_plotter.py --input_file plot1.csv --color_file /home/colour_file.tx
                         locus_tag_6 forward -i 2.gbk locus_tag_8 locus_tag_12
                         reverse.
                         As start/stop identifiers the following can be used:
-                        locus_tag, old_locus_tag, gene,product, protein_id
+                        locus_tag, old_locus_tag, gene, product, protein_id
 *  --input_file INPUT_FILE<br/>
                         csv file with location of genbank files, start and
                         stop genes and reverse/forward instructions. Lines starting with # will be ignored.
